@@ -963,12 +963,12 @@
         btn.className = `room-pill ${idx === currentStep ? "active" : ""}`;
         btn.textContent = room;
         btn.addEventListener("click", () => {
-          currentStep = idx;
-          selectedApplicant = 1;
-          syncToggle("applicantToggle", "applicant", selectedApplicant);
-          saveNotes();
-          render();
-        });
+            saveNotes();
+            currentStep = idx;
+            selectedApplicant = 1;
+            syncToggle("applicantToggle", "applicant", selectedApplicant);
+            render();
+            });
         rotationEl.appendChild(btn);
       });
 
