@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mock MMI Volunteer Helper</title>
+  <style>
+    :root {
+      --bg: #f3f5f9;
+      --card: #ffffff;
+      --muted: #eef2f6;
+      --muted-2: #f6f8fb;
+      --border: #dbe2ea;
+      --text: #1f2a44;
+      --subtext: #5c6b85;
+      --primary: #0b1635;
+      --primary-hover: #101f49;
+      --shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 24px rgba(16, 24, 40, 0.06);
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .page {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 40px 28px 60px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+
+    .title-wrap h1 {
+      margin: 0 0 10px;
+      font-size: 2.6rem;
+      line-height: 1.05;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: #000;
+    }
+
+    .title-wrap p {
+      margin: 0;
+      font-size: 1rem;
+      color: var(--subtext);
+    }
+
+    .controls {
+      display: flex;
+      gap: 18px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .control-group {
+      min-width: 220px;
+    }
+
+    .control-group label {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    select {
+      width: 100%;
+      appearance: none;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 14px 42px 14px 16px;
+      font-size: 1rem;
+      outline: none;
+      box-shadow: var(--shadow);
+      background-image: url("data:image/svg+xml;utf8,<svg fill='none' stroke='%23606f89' stroke-width='2' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path d='m6 9 6 6 6-6'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      background-size: 18px;
+    }
+
+    .segmented {
+      display: inline-flex;
+      background: #e9edf3;
+      border-radius: 14px;
+      padding: 4px;
+      gap: 4px;
+      min-width: 226px;
+    }
+
+    .segmented button {
+      border: none;
+      background: transparent;
+      color: #6d7a91;
+      padding: 12px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.98rem;
+      font-weight: 700;
+      transition: 0.18s ease;
+      flex: 1;
+    }
+
+    .segmented button.active {
+      background: #fff;
+      color: var(--text);
+      box-shadow: 0 1px 3px rgba(16, 24, 40, 0.10);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 430px 1fr;
+      gap: 30px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(219, 226, 234, 0.7);
+    }
+
+    .sidebar {
+      padding: 26px 24px;
+      min-height: 780px;
+    }
+
+    .main {
+      padding: 26px 24px;
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      margin: 0 0 24px;
+      color: var(--text);
+    }
+
+    .prompt-box {
+      background: var(--muted);
+      border-radius: 22px;
+      padding: 24px;
+      margin-bottom: 26px;
+    }
+
+    .prompt-box .label {
+      font-size: 0.95rem;
+      color: var(--subtext);
+      margin-bottom: 10px;
+    }
+
+    .prompt-box .value {
+      font-size: 1.9rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .room-seq-label {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .room-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .room-pill {
+      width: 50px;
+      height: 50px;
+      border-radius: 999px;
+      border: 1px solid #d4dce7;
+      background: #fff;
+      color: #60708b;
+      font-size: 1.15rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.18s ease;
+    }
+
+    .room-pill.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .next-btn {
+      width: 100%;
+      border: none;
+      border-radius: 16px;
+      background: var(--primary);
+      color: white;
+      padding: 15px 18px;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: 0.18s ease;
+      box-shadow: 0 10px 20px rgba(11, 22, 53, 0.12);
+    }
+
+    .next-btn:hover {
+      background: var(--primary-hover);
+    }
+
+    .next-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .main-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .main-header h2 {
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: 800;
+    }
+
+    .lang-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--muted);
+      border-radius: 999px;
+      padding: 10px 16px;
+      color: var(--subtext);
+      font-weight: 700;
+    }
+
+    .lang-pill .icon {
+      font-size: 1.1rem;
+    }
+
+    .applicant-segmented {
+      margin-bottom: 22px;
+      width: 100%;
+    }
+
+    .applicant-segmented .segmented {
+      width: 100%;
+      min-width: 0;
+    }
+
+    .content-box {
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 24px;
+      background: white;
+    }
+
+    .prompt-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .prompt-header h3 {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 800;
+    }
+
+    .copy-btn {
+      border: none;
+      background: transparent;
+      color: var(--text);
+      font-size: 0.98rem;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 8px 10px;
+      border-radius: 10px;
+    }
+
+    .copy-btn:hover {
+      background: var(--muted-2);
+    }
+
+    .prompt-text {
+      color: #44546f;
+      font-size: 1rem;
+      line-height: 1.6;
+      margin-bottom: 24px;
+      white-space: pre-wrap;
+    }
+
+    .prompt-text a {
+      color: #315fca;
+      text-decoration: underline;
+      word-break: break-all;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .mini-box {
+      background: var(--muted);
+      border-radius: 18px;
+      padding: 18px 18px 16px;
+    }
+
+    .mini-box h4 {
+      margin: 0 0 14px;
+      font-size: 0.98rem;
+      font-weight: 800;
+    }
+
+    .mini-box ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #44546f;
+      line-height: 1.55;
+    }
+
+    .mini-box li + li {
+      margin-top: 8px;
+    }
+
+    .notes-card {
+      margin-top: 24px;
+      padding: 22px 24px;
+    }
+
+    .notes-card h3 {
+      margin: 0 0 14px;
+      font-size: 1.03rem;
+      font-weight: 800;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 180px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      font: inherit;
+      color: var(--text);
+      background: white;
+      resize: vertical;
+      outline: none;
+    }
+
+    textarea:focus,
+    select:focus {
+      border-color: #b9c6d8;
+      box-shadow: 0 0 0 4px rgba(49, 95, 202, 0.08);
+    }
+
+    @media (max-width: 1050px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        min-height: 0;
+      }
+
+      .topbar {
+        flex-direction: column;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .page {
+        padding: 24px 16px 40px;
+      }
+
+      .title-wrap h1 {
+        font-size: 2rem;
+      }
+
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+
+      .main-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .controls {
+        width: 100%;
+      }
+
+      .control-group {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="topbar">
+      <div class="title-wrap">
+        <h1>Mock MMI Volunteer Helper</h1>
+        <p>Pick your starting room. Your prompts stay the same throughout the circuit.</p>
+      </div>
+
+      <div class="controls">
+        <div class="control-group">
+          <label for="roomSelect">Starting room</label>
+          <select id="roomSelect"></select>
+        </div>
+
+        <div class="control-group">
+          <label>Language</label>
+          <div class="segmented" id="languageToggle">
+            <button type="button" data-lang="eng" class="active">ENG</button>
+            <button type="button" data-lang="fr">FR</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="card sidebar">
+        <h2 class="card-title">Your rotation</h2>
+
+        <div class="prompt-box">
+          <div class="label">Prompts</div>
+          <div class="value" id="promptLabel">E + F</div>
+        </div>
+
+        <div class="room-seq-label">Room sequence</div>
+        <div class="room-pills" id="rotation"></div>
+
+        <button class="next-btn" id="nextBtn" type="button">Next room</button>
+      </div>
+
+      <div>
+        <div class="card main">
+          <div class="main-header">
+            <h2 id="roomTitle">Room 3</h2>
+            <div class="lang-pill"><span class="icon">🌐</span> <span id="languagePillText">English</span></div>
+          </div>
+
+          <div class="applicant-segmented">
+            <div class="segmented" id="applicantToggle">
+              <button type="button" data-applicant="1" class="active">Applicant 1</button>
+              <button type="button" data-applicant="2">Applicant 2</button>
+            </div>
+          </div>
+
+          <div class="content-box">
+            <div class="prompt-header">
+              <h3>Prompt</h3>
+              <button class="copy-btn" id="copyBtn" type="button">📋 Copy</button>
+            </div>
+
+            <div class="prompt-text" id="promptText"></div>
+
+            <div class="two-col">
+              <div class="mini-box">
+                <h4 id="sayLabel">What to ask</h4>
+                <ul id="sayList"></ul>
+              </div>
+
+              <div class="mini-box">
+                <h4 id="feedbackLabel">Evaluation criteria</h4>
+                <ul id="feedbackList"></ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card notes-card">
+          <h3>Notes</h3>
+          <textarea id="notesBox" placeholder="Write notes for this applicant..."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const DATA = {
+  1: {
+    eng: {
+      applicant1: {
+        prompt: "You will be speaking to an evaluator about yourself.",
+        say: [
+          "Why do you want to study medicine at McGill?",
+          "Tell me about a time you stepped outside your comfort zone.",
+          "If there is extra time, can ask a random question (favorite book, quote, etc.). Be creative :)"
+        ],
+        feedback: [
+          "Overall performance",
+          "Reflect on their journey and future in medicine",
+          "Interpersonal reflection",
+          "Ability to clearly communicate their thoughts"
+        ]
+      },
+      applicant2: {
+        prompt: "You will be speaking to an evaluator about yourself.",
+        say: [
+          "What does being a doctor mean to you?",
+          "Describe a failure and what you learned from it?",
+          "If there is extra time, can ask a random question (favorite book, quote, etc.). Be creative :)"
+        ],
+        feedback: [
+          "Overall performance",
+          "Reflect on their journey and future in medicine",
+          "Interpersonal reflection",
+          "Ability to clearly communicate their thoughts"
+        ]
+      }
+    },
+    fr: {
+      applicant1: {
+        prompt: "Vous allez discuter de vous-même avec un évaluateur.",
+        say: [
+          "Pourquoi souhaitez-vous faire des études de médecine à McGill ?",
+          "Raconte-moi une fois où tu es sorti de ta zone de confort.",
+          "S’il reste du temps, posez une question originale (dernier livre lu, citation que vous aimez, etc.). Soyez créatif :)"
+        ],
+        feedback: [
+          "Performance globale",
+          "Capacité à réfléchir sur leur parcours et leur avenir en médecine",
+          "Réflexion interpersonnelle",
+          "Capacité à communiquer clairement leurs idées"
+        ]
+      },
+      applicant2: {
+        prompt: "Vous allez discuter de vous-même avec un évaluateur.",
+        say: [
+          "Que signifie pour vous le métier de médecin ?",
+          "Décrivez un échec que vous avez vécu et ce que vous en avez tiré comme leçon.",
+          "S’il reste du temps, posez une question originale (dernier livre lu, citation que vous aimez, etc.). Soyez créatif :)"
+        ],
+        feedback: [
+          "Performance globale",
+          "Capacité à réfléchir sur leur parcours et leur avenir en médecine",
+          "Réflexion interpersonnelle",
+          "Capacité à communiquer clairement leurs idées"
+        ]
+      }
+    }
+  },
+
+  2: {
+    eng: {
+      applicant1: {
+        prompt: "You have 1 minute to review the following figure (please focus on the upper portion only). You will then discuss it with the evaluator.\nhttps://www150.statcan.gc.ca/n1/pub/11-627-m/2024058/11-627-m2024058-eng.jpg",
+        say: [
+          "Describe what the figure is depicting",
+          "What are the takeaways/main message?",
+          "Strengths and limitations of this figure?"
+        ],
+        feedback: [
+          "Ability to understand and concisely describe the figure",
+          "Critical assessment of figure",
+          "Identifies strengths and limitations",
+          "Explains implications",
+          "Identifies some interesting points"
+        ]
+      },
+      applicant2: {
+        prompt: "You have 1 minute to review the following figure (please focus on the upper portion only). You will then discuss it with the evaluator.\nhttps://www150.statcan.gc.ca/n1/pub/11-627-m/2026017/11-627-m2026017-eng.png",
+        say: [
+          "Describe what the figure is depicting",
+          "What are the takeaways/main message?",
+          "Strengths and limitations of this figure?"
+        ],
+        feedback: [
+          "Ability to understand and concisely describe the figure",
+          "Critical assessment of figure",
+          "Identifies strengths and limitations",
+          "Explains implications",
+          "Identifies some interesting points"
+        ]
+      }
+    },
+    fr: {
+      applicant1: {
+        prompt: "Vous avez 1 minute pour examiner la figure suivante (concentrez vous uniquement sur la partie supérieure). Vous en discuterez ensuite avec l’évaluateur.\nhttps://www150.statcan.gc.ca/n1/fr/pub/11-627-m/11-627-m2024058-fra.pdf?st=fSts2rHI",
+        say: [
+          "Décrivez la figure",
+          "Quels sont les principaux messages/points à retenir ?",
+          "Quelles sont les points forts et faibles de cette figure ?"
+        ],
+        feedback: [
+          "Capacité à comprendre et à décrire la figure de manière concise",
+          "Esprit critique dans l’analyse de la figure",
+          "Capacité à identifier les forces et les limites",
+          "Capacité à expliquer les implications",
+          "Capacité à relever des points pertinents ou intéressants"
+        ]
+      },
+      applicant2: {
+        prompt: "Vous avez 1 minute pour examiner la figure suivante (concentrez vous uniquement sur la partie supérieure). Vous en discuterez ensuite avec l’évaluateur.\nhttps://www150.statcan.gc.ca/n1/fr/pub/11-627-m/11-627-m2026017-fra.pdf?st=8Ihc-igl",
+        say: [
+          "Décrivez la figure",
+          "Quels sont les principaux messages/points à retenir ?",
+          "Quelles sont les points forts et faibles de cette figure ?"
+        ],
+        feedback: [
+          "Capacité à comprendre et à décrire la figure de manière concise",
+          "Esprit critique dans l’analyse de la figure",
+          "Capacité à identifier les forces et les limites",
+          "Capacité à expliquer les implications",
+          "Capacité à relever des points pertinents ou intéressants"
+        ]
+      }
+    }
+  },
+
+  3: {
+    eng: {
+      applicant1: {
+        prompt: "You are working in a pair on a graded presentation that is due in three days. Despite plans to meet, your partner has repeatedly cancelled last-minute and been slow to respond. You’re concerned the presentation is not ready and that your grade may be affected. You’ve also noticed on social media that they have been going out with friends frequently.\n\nYou ask to speak with them over a video call to clarify the situation. They agree to meet with you now.",
+        say: [
+          "Backstory for actor: You have been cancelling your meetings because your mother who lives an hour away was recently hospitalized and you’ve been traveling back and forth to help at home. You didn’t want to tell classmates because you didn’t want sympathy or special treatment. Going out with friends was your way of coping and taking short mental breaks. Be avoidant at first and then open up."
+        ],
+        feedback: [
+          "Establishes rapport",
+          "Shows empathy and active listening (verbal and non-verbal)",
+          "Communicates well and clearly",
+          "Attempts to find a solution to the problem"
+        ]
+      },
+      applicant2: {
+        prompt: "You have been working part-time as a barista for a month. You’ve noticed the assistant manager is frequently coughing and blowing their nose, and does not wash their hands before serving customers. Your learn that a food inspector will be visiting next week to verify hygiene protocols in the context of a recent influenza outbreak.\n\nYou decide to speak with the assistant manager about your concerns.",
+        say: [
+          "Backstory for actor: You are the parent of a young child in daycare which is how you got sick. You’ve been running on very little sleep. You can’t risk losing your job over a complaint because you need to pay for your child’s expenses. Initially be defensive and dismissive."
+        ],
+        feedback: [
+          "Establishes rapport",
+          "Shows empathy and active listening (verbal and non-verbal)",
+          "Communicates well and clearly",
+          "Attempts to find a solution to the problem"
+        ]
+      }
+    },
+    fr: {
+      applicant1: {
+        prompt: "Vous travaillez en équipe de deux sur une présentation à remettre dans trois jours. Malgré vos plans, votre partenaire annule souvent à la dernière minute et répond peu à vos messages. Vous êtes inquiet que la présentation ne soit pas prête et que votre note en soit affectée. Vous avez aussi remarqué sur les réseaux sociaux que votre partenaire sortait souvent avec des amis.\n\nVous demandez à lui parler lors d’un appel vidéo afin de clarifier la situation. Il/elle accepte de vous rencontrer maintenant.",
+        say: [
+          "Contexte pour l’acteur: Vous avez annulé vos rencontres parce que votre mère, qui vit à une heure de route, a récemment été hospitalisée et vous faites des allers-retours pour aider à la maison. Vous ne vouliez pas en parler à vos collègues de classe afin d’éviter la sympathie ou un « traitement spécial ». Sortir avec des amis était pour vous une façon de gérer la situation et de prendre de courtes pauses mentales. Soyez d’abord fermé, puis ouvrez-vous progressivement."
+        ],
+        feedback: [
+          "Établit un climat de confiance",
+          "Fait preuve d’empathie et d’écoute active (verbale et non verbale)",
+          "Communique de façon claire et efficace",
+          "Tente de trouver une solution au problème"
+        ]
+      },
+      applicant2: {
+        prompt: "Vous travaillez à temps partiel comme barista depuis un mois. Vous avez remarqué que votre gérant adjoint tousse fréquemment, se mouche le nez, et ne se lave pas les mains avant de servir les clients. Vous apprenez qu’un inspecteur sanitaire visitera le café la semaine prochaine pour vérifier les protocoles d’hygiène dans le contexte d’une récente éclosion d’influenza.\n\nVous décidez de parler au gérant adjoint de vos préoccupations.",
+        say: [
+          "Contexte pour l’acteur: Vous êtes le parent d’un jeune enfant en garderie, et c’est ainsi que vous êtes tombé malade. Vous dormez très peu. Vous ne pouvez pas vous permettre de perdre votre emploi à la suite d’une plainte, car vous devez subvenir aux besoins de votre enfant. Soyez sur la défensive et tentez de minimiser vos actions initialement."
+        ],
+        feedback: [
+          "Établit un climat de confiance",
+          "Fait preuve d’empathie et d’écoute active (verbale et non verbale)",
+          "Communique de façon claire et efficace",
+          "Tente de trouver une solution au problème"
+        ]
+      }
+    }
+  },
+
+  4: {
+    eng: {
+      applicant1: {
+        prompt: "You are meeting to speak with a friend who is a policy advisor for the federal government.",
+        say: [
+          "Hey! I wanted to call to speak to you about an issue I’ve been dealing with. Lately there’s been increasing concerns about terrorism, and the government is considering implementing a nationwide system to track citizens’ movements using digital data (such as mobile phones or ID cards) to improve public safety.",
+          "I’m just conflicted on what to do because they expect me to implement this policy in the upcoming weeks. Do you think this justified and, if so, how should it be implemented?",
+          "NOTE: Let the candidate speak, limit cues/conversation after you said the prompt (this is not a conversational station)"
+        ],
+        feedback: [
+          "Establishes rapport",
+          "Shows understanding and active listening (verbal and non-verbal)",
+          "Ability to identify ethical dilemma clearly",
+          "Ability to assess pros and cons",
+          "Comes up with alternative solutions"
+        ]
+      },
+      applicant2: {
+        prompt: "You are meeting to speak with a friend who is a policy advisor for the federal government.",
+        say: [
+          "I’ve started creating a painting inspired by a sacred cultural tradition from a small village in (**pick a country**) after I visited this summer. The symbolism is so beautiful and I think my work can really introduce people to this culture.",
+          "I’m just a bit worried that some members of this culture might view it as inappropriate since I’m an outsider and I want to use this sacred imagery for a painting that I will eventually sell.",
+          "Do you think it’s okay for me to proceed with this painting?",
+          "NOTE: Let the candidate speak, limit cues/conversation after you said the prompt (this is not a conversational station)"
+        ],
+        feedback: [
+          "Establishes rapport",
+          "Shows understanding and active listening (verbal and non-verbal)",
+          "Ability to identify ethical dilemma clearly",
+          "Ability to assess pros and cons",
+          "Comes up with alternative solutions"
+        ]
+      }
+    },
+    fr: {
+      applicant1: {
+        prompt: "Vous rencontrez un ami qui est conseiller politique pour le gouvernement fédéral.",
+        say: [
+          "Salut ! Je voulais te parler d'un problème auquel je suis confronté. Ces derniers temps, les inquiétudes liées au terrorisme augmentent, et le gouvernement envisage de mettre en place un système national permettant de suivre les déplacements des citoyens à l'aide de données numériques (comme les téléphones portables ou les cartes d'identité) pour améliorer la sécurité publique.",
+          "Je ne sais pas quoi faire, car on attend de moi que je mette en œuvre cette politique dans les semaines à venir. Penses-tu que cela soit justifié et, si oui, comment cela devrait-il être mis en œuvre ?",
+          "NOTE : Laissez le candidat s’exprimer et limitez les interventions après avoir lu la consigne (ce n’est pas une station conversationnelle)."
+        ],
+        feedback: [
+          "Établit un climat de confiance",
+          "Fait preuve de compréhension et d’écoute active (verbale et non verbale)",
+          "Capacité à identifier clairement le dilemme éthique",
+          "Capacité à évaluer les avantages et les inconvénients",
+          "Propose des solutions alternatives"
+        ]
+      },
+      applicant2: {
+        prompt: "Vous rencontrez un ami qui est conseiller politique pour le gouvernement fédéral.",
+        say: [
+          "J'ai commencé à créer une peinture inspirée d'une tradition culturelle sacrée d'un petit village de (**choisis un pays**) après l'avoir visité cet été. Le symbolisme est si beau et je pense que mon travail peut vraiment faire découvrir cette culture aux gens.",
+          "Je crains toutefois que certains membres de cette culture puissent trouver cela inapproprié, car je suis une étrangère et que je souhaite utiliser ces images sacrées pour une peinture que je vendrai par la suite.",
+          "Penses-tu que c’est correct de continuer cette peinture ?",
+          "NOTE : Laissez le candidat s’exprimer et limitez les interventions après avoir lu la consigne (ce n’est pas une station conversationnelle)."
+        ],
+        feedback: [
+          "Établit un climat de confiance",
+          "Fait preuve de compréhension et d’écoute active (verbale et non verbale)",
+          "Capacité à identifier clairement le dilemme éthique",
+          "Capacité à évaluer les avantages et les inconvénients",
+          "Propose des solutions alternatives"
+        ]
+      }
+    }
+  },
+
+  5: {
+    eng: {
+      applicant1: {
+        prompt: "You have 1 minute to read the following question. You will then explain your approach and solution with the interviewer.\nHow many liters of soft drinks were consumed in Canada in 2025?",
+        say: [
+          "Ask applicant to walk you through their method",
+          "What are some limitations of your calculation?",
+          "Why/how they made certain assumptions",
+          "How else could you have approached this question?"
+        ],
+        feedback: [
+          "Explains in a methodical way how they got to the solution",
+          "Applies their knowledge from previous experiences",
+          "Clarity and conciseness",
+          "Explains their limitations",
+          "NO SPECIFIC NUMBER, AS LONG AS THE LOGIC MAKES SENSE"
+        ]
+      },
+      applicant2: {
+        prompt: "You have 1 minute to read the following question. You will then explain your approach and solution with the interviewer.\nHow many seconds does a student spend on campus during the entirety of their CEGEP studies?",
+        say: [
+          "Ask applicant to walk you through their method",
+          "What are some limitations of your calculation?",
+          "Why/how they made certain assumptions",
+          "How else could you have approached this question?"
+        ],
+        feedback: [
+          "Explains in a methodical way how they got to the solution",
+          "Applies their knowledge from previous experiences",
+          "Clarity and conciseness",
+          "Explains their limitations",
+          "NO SPECIFIC NUMBER, AS LONG AS THE LOGIC MAKES SENSE"
+        ]
+      }
+    },
+    fr: {
+      applicant1: {
+        prompt: "Vous avez 1 minute pour lire la question suivante. Vous présenterez ensuite votre démarche et votre solution à l’évaluateur.\nCombien de litres de boissons gazeuses ont été consommés au Canada en 2025?",
+        say: [
+          "Demandez au candidat d’expliquer sa démarche",
+          "Quelles sont les limites/faiblesses de votre calcul ?",
+          "Pourquoi/comment ils ont choisi certaines valeurs",
+          "Auriez-vous pu résoudre cette question autrement ?",
+          "NOTE : Laissez le candidat s’exprimer et limitez les interventions après avoir lu la consigne (ce n’est pas une station conversationnelle)."
+        ],
+        feedback: [
+          "Explique de manière méthodique comment il/elle arrive à la solution",
+          "Applique ses connaissances issues d’expériences antérieures",
+          "Clarté et concision",
+          "Explique les limites de son raisonnement",
+          "AUCUN CHIFFRE PRÉCIS N’EST ATTENDU, TANT QUE LA LOGIQUE EST COHÉRENTE"
+        ]
+      },
+      applicant2: {
+        prompt: "Vous avez 1 minute pour lire la question suivante. Vous présenterez ensuite votre démarche et votre solution à l’évaluateur.\nCombien de secondes un étudiant passe-t-il sur le campus pendant toute la durée de ses études au Cégep ?",
+        say: [
+          "Demandez au candidat d’expliquer sa démarche",
+          "Quelles sont les limites/faiblesses de votre calcul ?",
+          "Pourquoi/comment ils ont choisi certaines valeurs",
+          "Auriez-vous pu résoudre cette question autrement ?",
+          "NOTE : Laissez le candidat s’exprimer et limitez les interventions après avoir lu la consigne (ce n’est pas une station conversationnelle)."
+        ],
+        feedback: [
+          "Explique de manière méthodique comment il/elle arrive à la solution",
+          "Applique ses connaissances issues d’expériences antérieures",
+          "Clarté et concision",
+          "Explique les limites de son raisonnement",
+          "AUCUN CHIFFRE PRÉCIS N’EST ATTENDU, TANT QUE LA LOGIQUE EST COHÉRENTE"
+        ]
+      }
+    }
+  }
+};
+
+    let language = "eng";
+    let selectedApplicant = 1;
+    let currentStep = 0;
+    const notes = {};
+
+    const roomSelect = document.getElementById("roomSelect");
+    const promptLabel = document.getElementById("promptLabel");
+    const rotationEl = document.getElementById("rotation");
+    const nextBtn = document.getElementById("nextBtn");
+    const roomTitle = document.getElementById("roomTitle");
+    const languagePillText = document.getElementById("languagePillText");
+    const promptText = document.getElementById("promptText");
+    const sayList = document.getElementById("sayList");
+    const feedbackList = document.getElementById("feedbackList");
+    const sayLabel = document.getElementById("sayLabel");
+    const notesBox = document.getElementById("notesBox");
+    const copyBtn = document.getElementById("copyBtn");
+
+    for (let i = 1; i <= 10; i++) {
+      const option = document.createElement("option");
+      option.value = i;
+      option.textContent = `Room ${i}`;
+      roomSelect.appendChild(option);
+    }
+
+    roomSelect.value = "1";
+
+    function getPromptLabel(room) {
+      if ([1, 6].includes(room)) return "A + B";
+      if ([2, 7].includes(room)) return "C + D";
+      if ([3, 8].includes(room)) return "E + F";
+      if ([4, 9].includes(room)) return "G + H";
+      if ([5, 10].includes(room)) return "I + J";
+      return "";
+    }
+
+    function getCircuit(room) {
+      return room <= 5 ? [1, 2, 3, 4, 5] : [6, 7, 8, 9, 10];
+    }
+
+    function getRotation(room) {
+      const circuit = getCircuit(room);
+      const idx = circuit.indexOf(room);
+      return [...circuit.slice(idx), ...circuit.slice(0, idx)];
+    }
+
+    function getCurrentRoom() {
+      const startingRoom = Number(roomSelect.value);
+      return getRotation(startingRoom)[currentStep];
+    }
+
+    function getPromptSetRoom() {
+      const startingRoom = Number(roomSelect.value);
+      return startingRoom <= 5 ? startingRoom : startingRoom - 5;
+    }
+
+    function getCurrentData() {
+      const promptSetRoom = getPromptSetRoom();
+      const group = DATA[promptSetRoom]?.[language]?.[`applicant${selectedApplicant}`];
+      return group || { prompt: "", say: [], feedback: [] };
+    }
+
+    function getSayLabel() {
+      const label = getPromptLabel(Number(roomSelect.value));
+      if (label === "A + B" || label === "C + D" || label === "I + J") return language === "fr" ? "Questions à poser" : "What to ask";
+      if (label === "E + F") return language === "fr" ? "Contexte / indications pour l’acteur" : "Backstory / pointers for actor";
+      if (label === "G + H") return language === "fr" ? "Quoi dire" : "What to say";
+      return "";
+    }
+
+    function renderPromptText(text) {
+      const lines = String(text || "").split("\n");
+      promptText.innerHTML = "";
+
+      lines.forEach(line => {
+        const div = document.createElement("div");
+        const trimmed = line.trim();
+
+        if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+          const a = document.createElement("a");
+          a.href = trimmed;
+          a.target = "_blank";
+          a.rel = "noopener noreferrer";
+          a.textContent = trimmed;
+          div.appendChild(a);
+        } else {
+          div.textContent = line;
+        }
+
+        promptText.appendChild(div);
+      });
+    }
+
+    function renderList(el, items) {
+      el.innerHTML = "";
+      (items || []).forEach(item => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        el.appendChild(li);
+      });
+    }
+
+    function syncToggle(containerId, attribute, value) {
+      document.querySelectorAll(`#${containerId} button`).forEach(btn => {
+        btn.classList.toggle("active", btn.dataset[attribute] === String(value));
+      });
+    }
+
+    function render() {
+      const startingRoom = Number(roomSelect.value);
+      const rotation = getRotation(startingRoom);
+      const currentRoom = getCurrentRoom();
+      const data = getCurrentData();
+
+      promptLabel.textContent = getPromptLabel(startingRoom);
+      roomTitle.textContent = `Room ${currentRoom}`;
+      languagePillText.textContent = language === "eng" ? "English" : "Français";
+      sayLabel.textContent = getSayLabel();
+      notesBox.placeholder = language === "eng" ? "Write notes for this applicant..." : "Écrivez vos notes pour ce candidat...";
+
+      renderPromptText(data.prompt);
+      renderList(sayList, data.say);
+      renderList(feedbackList, data.feedback);
+
+      rotationEl.innerHTML = "";
+      rotation.forEach((room, idx) => {
+        const btn = document.createElement("button");
+        btn.className = `room-pill ${idx === currentStep ? "active" : ""}`;
+        btn.textContent = room;
+        btn.addEventListener("click", () => {
+          currentStep = idx;
+          selectedApplicant = 1;
+          syncToggle("applicantToggle", "applicant", selectedApplicant);
+          saveNotes();
+          render();
+        });
+        rotationEl.appendChild(btn);
+      });
+
+      nextBtn.disabled = currentStep === rotation.length - 1;
+
+      const noteKey = `${currentRoom}-${selectedApplicant}`;
+      notesBox.value = notes[noteKey] || "";
+    }
+
+    function saveNotes() {
+      const noteKey = `${getCurrentRoom()}-${selectedApplicant}`;
+      notes[noteKey] = notesBox.value;
+    }
+
+    roomSelect.addEventListener("change", () => {
+      saveNotes();
+      currentStep = 0;
+      selectedApplicant = 1;
+      syncToggle("applicantToggle", "applicant", selectedApplicant);
+      render();
+    });
+
+    nextBtn.addEventListener("click", () => {
+      saveNotes();
+      const rotation = getRotation(Number(roomSelect.value));
+      if (currentStep < rotation.length - 1) {
+        currentStep += 1;
+      }
+      selectedApplicant = 1;
+      syncToggle("applicantToggle", "applicant", selectedApplicant);
+      render();
+    });
+
+    notesBox.addEventListener("input", () => {
+      saveNotes();
+    });
+
+    document.querySelectorAll("#languageToggle button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        saveNotes();
+        language = btn.dataset.lang;
+        syncToggle("languageToggle", "lang", language);
+        render();
+      });
+    });
+
+    document.querySelectorAll("#applicantToggle button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        saveNotes();
+        selectedApplicant = Number(btn.dataset.applicant);
+        syncToggle("applicantToggle", "applicant", selectedApplicant);
+        render();
+      });
+    });
+
+    copyBtn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(getCurrentData().prompt || "");
+        copyBtn.textContent = language === "eng" ? "✅ Copied" : "✅ Copié";
+        setTimeout(() => {
+          copyBtn.textContent = language === "eng" ? "📋 Copy" : "📋 Copier";
+        }, 1200);
+      } catch {
+        copyBtn.textContent = "Copy failed";
+        setTimeout(() => {
+          copyBtn.textContent = language === "eng" ? "📋 Copy" : "📋 Copier";
+        }, 1200);
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>
